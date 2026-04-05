@@ -1,23 +1,15 @@
-# ========================
-# ETAPA 1 - BUILD
-# ========================
-FROM maven:3.9.9-eclipse-temurin-21 AS build
-
-WORKDIR /app
+FROM ubuntu:latest AS build
+RUN apt-get update
+RUN apt-get install openjdk-21-jdk -y
+RUN apt-get install git -y
 
 COPY . .
 
-RUN mvn clean package -DskipTests
-
-# ========================
-# ETAPA 2 - RUN
-# ========================
-FROM eclipse-temurin:21-jdk
-
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar app.jar
+RUN apt-get install maven -y
+RUN mvn clean install
 
 EXPOSE 8080
+
+COPY --from=build /target/todolist-0.0.1-SNAPSHOT.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
